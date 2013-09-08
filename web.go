@@ -5,7 +5,6 @@ package main
 
 import (
 	"encoding/json"
-	"github.com/elimisteve/block-web-latency-comparinator/types"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
@@ -62,7 +61,7 @@ func MeasureLatency(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	// Parse JSON
-	input := types.InputURLs{}
+	input := InputURLs{}
 	if err := json.Unmarshal(body, &input); err != nil {
 		// Bad Request
 		log.Printf("Error at %s: %v\n", r.URL, err)
@@ -71,19 +70,19 @@ func MeasureLatency(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Perform HEAD requests and record reponse times
-	ch := make(chan *types.Stopwatch)
+	ch := make(chan *Stopwatch)
 	for _, url := range input.Inputs.URLs {
 		go timeHead(ch, url)
 	}
 
 	// Collect response times
-	latencies := make([]*types.Stopwatch, len(input.Inputs.URLs))
+	latencies := make([]*Stopwatch, len(input.Inputs.URLs))
 	for i := 0; i < len(input.Inputs.URLs); i++ {
 		latencies[i] = <-ch
 	}
 
 	// Prepare JSON response
-	output := types.OutputLatencies{Outputs: latencies}
+	output := OutputLatencies{Outputs: latencies}
 
 	jsonData, err := json.Marshal(&output)
 	if err != nil {
@@ -96,8 +95,8 @@ func MeasureLatency(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonData)
 }
 
-func timeHead(ch chan *types.Stopwatch, url string) {
-	stopwatch := &types.Stopwatch{URL: url}
+func timeHead(ch chan *Stopwatch, url string) {
+	stopwatch := &Stopwatch{URL: url}
 
 	// Send `stopwatch` to `ch` when `timeHead` returns
 	defer func() {
@@ -125,6 +124,25 @@ func timeHead(ch chan *types.Stopwatch, url string) {
 
 	// Convert nanoseconds to milliseconds
 	stopwatch.Latency = int64(latencyInNanos / 1e6)
+}
+
+//
+// Types
+//
+
+type InputURLs struct {
+	Inputs struct {
+		URLs []string `json:"urls"`
+	} `json:"inputs"`
+}
+
+type OutputLatencies struct {
+	Outputs []*Stopwatch `json:"outputs"`
+}
+
+type Stopwatch struct {
+	URL     string `json:"url"`
+	Latency int64  `json:"latency"`  // Milliseconds
 }
 
 //
