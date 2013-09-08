@@ -168,11 +168,13 @@ var BLOCK_DEFINITION = []byte(`{
   "name": "Web Latency Comparinator",
   "url": "http://web-latency-comparinator.herokuapp.com",
   "description": "Performs a HEAD request to all given URLs in parallel and returns the time taken to receive a response from each.",
-  "inputs": {
+  "inputs": [
+    {
       "name": "urls",
       "type": "Array",
       "description": "URLs to be visited"
-  },
+    }
+  ],
   "outputs": [
     {
       "name": "url",
