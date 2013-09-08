@@ -49,6 +49,7 @@ func ShowSchema(w http.ResponseWriter, r *http.Request) {
 // in the form {"outputs": [{"url": "http://...", "latency": 100}]}
 func MeasureLatency(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	defer w.Write([]byte("\n"))
 
 	// Read Request
 	body, err := ioutil.ReadAll(r.Body)
