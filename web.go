@@ -4,8 +4,8 @@
 package main
 
 import (
-	"./types"
 	"encoding/json"
+	"github.com/elimisteve/block-web-latency-comparinator/types"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
